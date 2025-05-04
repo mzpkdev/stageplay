@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Peer2Peer Example</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/barecss@1.1.1/css/bare.min.css">
+  <style>
+    body {
+      padding: 64px;
+    }
+  </style>
+  <script src="client.ts" type="module"></script>
+</head>
+<body>
+<div>
+  <code id="debug"></code>
+</div>
+<script>
+  const debug = document.getElementById("debug")
+  const originalConsoleLog = console.log
+  console.log = function () {
+    originalConsoleLog.apply(console, arguments)
+    const message = Array.from(arguments).join(" ")
+    const div = document.createElement("div")
+    div.textContent = message
+    debug.appendChild(div)
+  }
+</script>
+</body>
+</html> 
