@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "vite ./"
+  },
+  "dependencies": {
+    "stageplay": "^0.0.0",
+    "vite": "^6.3.2"
+  }
+}

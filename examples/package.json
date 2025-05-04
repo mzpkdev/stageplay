@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "websockets-game": "concurrently \"node ./websockets-game/server.js\" \"vite ./websockets-game/\""
+  },
+  "workspaces": [
+    "./networking/*"
+  ]
+}
