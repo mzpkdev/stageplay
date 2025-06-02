@@ -1,39 +1,52 @@
-class KeyedSet<TIdentifiable> {
-    static from<TIdentifiable>(key: (identifiable: TIdentifiable) => unknown, array: TIdentifiable[]): KeyedSet<TIdentifiable> {
-        const registry = new KeyedSet<TIdentifiable>(key)
-        for (const identifiable of array) {
-            registry.add(identifiable)
+class KeyedSet<TKeyed, TKey = unknown> {
+    static from<TKeyed, TKey>(key: (keyed: TKeyed) => TKey, collection: Iterable<TKeyed>): KeyedSet<TKeyed, TKey> {
+        const registry = new KeyedSet<TKeyed, TKey>(key)
+        for (const keyed of collection) {
+            registry.add(keyed)
         }
         return registry
     }
 
-    #_key: (identifiable: TIdentifiable) => unknown
-    #_dictionary: Map<unknown, TIdentifiable> = new Map()
+    #_key: (keyed: TKeyed) => TKey
+    #_dictionary: Map<TKey, TKeyed> = new Map()
 
     get size() {
         return this.#_dictionary.size
     }
 
-    constructor(key: (identifiable: TIdentifiable) => unknown) {
+    constructor(key: (identifiable: TKeyed) => TKey) {
         this.#_key = key
     }
 
-    add(identifiable: TIdentifiable): this {
-        this.#_dictionary.set(this.#_key(identifiable), identifiable)
+    add(keyed: TKeyed): this {
+        this.#_dictionary.set(this.#_key(keyed), keyed)
         return this
     }
 
-    delete(identifiable: TIdentifiable): this {
-        this.#_dictionary.delete(this.#_key(identifiable))
+    delete(keyed: TKeyed): this {
+        this.#_dictionary.delete(this.#_key(keyed))
         return this
     }
 
-    get(id: string): TIdentifiable | undefined {
+    get(id: TKey): TKeyed | undefined {
         return this.#_dictionary.get(id)
     }
 
-    has(identifiable: TIdentifiable): boolean {
-        return this.#_dictionary.has(this.#_key(identifiable))
+    has(keyed: TKeyed): boolean {
+        return this.#_dictionary.has(this.#_key(keyed))
+    }
+
+    at(index: number): TKeyed | undefined {
+        let i = 0
+        index = index < 0
+            ? this.#_dictionary.size + index : index
+        for (const keyed of this.#_dictionary.values()) {
+            if (i === index) {
+                return keyed
+            }
+            i++
+        }
+        return undefined
     }
 
     * [Symbol.iterator]() {

@@ -25,11 +25,11 @@ const simulate = () => {
         }
 
         if (Math.random() > threshold) {
-            // goblin.position.x = Math.random()
+            goblin.position.x = Math.round(Math.random() * 100) / 100
             // goblin.velocity.x = Math.round((Math.random() - 0.5) * 2)
         }
         if (Math.random() > threshold) {
-            // goblin.position.y = Math.random()
+            goblin.position.y = Math.round(Math.random() * 100) / 100
             // goblin.velocity.y = Math.round((Math.random() - 0.5) * 2)
         }
         // if (Math.random() > 0.99) {

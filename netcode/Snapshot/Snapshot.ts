@@ -12,6 +12,8 @@ const RESERVED_PROPERTIES = new Set([
 
 
 type PlainObject = {
+    sequence: number
+    contains: number[]
     timestamp: number
     state: Packet[]
 }
@@ -19,20 +21,46 @@ type PlainObject = {
 class Snapshot {
     static from(object: PlainObject): Snapshot {
         const snapshot = new Snapshot()
+        snapshot.#_sequence = object.sequence
+        snapshot.#_contains = object.contains
         snapshot.#_timestamp = object.timestamp
         snapshot.#_state = KeyedSet.from(packet => packet.id, object.state)
         return snapshot
     }
 
 
+    #_sequence: number
+    #_contains: number[] = []
     #_timestamp: number = Date.now()
     #_state: KeyedSet<Packet> = new KeyedSet(packet => packet.id)
+
+    constructor(sequence: number = 0, contains: number[] = []) {
+        this.#_sequence = sequence
+        this.#_contains = contains
+    }
+
+
+    get sequence() {
+        return this.#_sequence
+    }
+
+    set sequence(value: number) {
+        this.#_sequence = value
+    }
+
+    get contains() {
+        return this.#_contains
+    }
+
+    set contains(value: number[]) {
+        this.#_contains = value
+    }
 
     get timestamp() {
         return this.#_timestamp
     }
 
-    set timestamp(value: number) {
+    set  (value: number) {
         this.#_timestamp = value
     }
 
@@ -41,10 +69,7 @@ class Snapshot {
     }
 
     snap(actant: Actant): this {
-        const packet = new Packet()
-        packet.id = actant.id
-        packet.type = actant.type
-        packet.origin = actant.origin
+        const packet = new Packet(actant.id, actant.type, actant.origin)
         for (const property in actant) {
             if (!Object.prototype.hasOwnProperty.call(actant, property)) {
                 continue
@@ -78,6 +103,8 @@ class Snapshot {
                 snapshot.#_state.add(packet)
             }
         }
+        snapshot.sequence = this.#_sequence
+        snapshot.contains = this.#_contains.slice()
         return snapshot
     }
 
@@ -97,14 +124,13 @@ class Snapshot {
         for (const packet of previous.#_state) {
             const exists = this.#_state.get(packet.id)
             if (!exists) {
-                const deleted = new Packet()
-                deleted.id = packet.id
-                deleted.type = packet.type
-                deleted.origin = packet.origin
+                const deleted = new Packet(packet.id, packet.type, packet.origin)
                 deleted.deleted = true
                 snapshot.#_state.add(deleted)
             }
         }
+        snapshot.sequence = this.#_sequence
+        snapshot.contains = this.#_contains.slice()
         return snapshot
     }
 }
@@ -113,8 +139,8 @@ Encoder.extension.register({
     type: 1,
     encode(object) {
         if (object instanceof Snapshot) {
-            const { timestamp, state } = object
-            return Encoder.encode({ timestamp, state: Array.from(state) })
+            const { sequence, contains, timestamp, state } = object
+            return Encoder.encode({ sequence, contains, timestamp, state: Array.from(state) })
         }
         return null
     },
